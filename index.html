@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bluffball — Your Secret Weapon for Sports Conversations</title>
+<meta name="description" content="Bluffball helps you fake your way through any sports conversation. Inspired by The IT Crowd.">
+<style>
+:root {
+  --mono: 'Courier New', monospace;
+  --serif: 'Georgia', serif;
+  --bg: #1a1a2e; --bg2: #16213e; --surface: #1e2a45;
+  --text: #e8e8e8; --muted: #8b95a5; --dim: #5a6577;
+  --border: rgba(255,255,255,0.08);
+  --tab-bg: rgba(255,255,255,0.04); --tab-active: rgba(255,255,255,0.12);
+  --moss: #7ec8a0;
+  --hot-bg: rgba(231,76,60,0.08); --hot-bd: rgba(231,76,60,0.2); --hot-lc: #e74c3c;
+  --deep-bg: rgba(52,152,219,0.08); --deep-bd: rgba(52,152,219,0.2); --deep-lc: #3498db;
+  --esc-bg: rgba(46,204,113,0.08); --esc-bd: rgba(46,204,113,0.2); --esc-lc: #2ecc71;
+  --tip-accent: #9b59b6; --tip-bg: rgba(155,89,182,0.08); --tip-bd: rgba(155,89,182,0.2);
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f0ece4; --bg2: #e8e2d8; --surface: #faf8f4;
+    --text: #2c2c2c; --muted: #6b6b6b; --dim: #999;
+    --border: rgba(0,0,0,0.08);
+    --tab-bg: rgba(0,0,0,0.03); --tab-active: rgba(0,0,0,0.08);
+    --moss: #3a7d5c;
+    --hot-bg: rgba(192,57,43,0.06); --hot-bd: rgba(192,57,43,0.15); --hot-lc: #c0392b;
+    --deep-bg: rgba(41,128,185,0.06); --deep-bd: rgba(41,128,185,0.15); --deep-lc: #2980b9;
+    --esc-bg: rgba(39,174,96,0.06); --esc-bd: rgba(39,174,96,0.15); --esc-lc: #27ae60;
+    --tip-accent: #8e44ad; --tip-bg: rgba(142,68,173,0.06); --tip-bd: rgba(142,68,173,0.15);
+  }
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: var(--serif); min-height: 100vh; }
+@keyframes fadeSlide { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+@keyframes panicFade { 0%{opacity:0;transform:translateY(-8px)} 12%{opacity:1;transform:translateY(0)} 85%{opacity:1} 100%{opacity:0;transform:translateY(4px)} }
+
+.card { border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; animation: fadeSlide 0.3s ease both; }
+.card-label { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; margin-bottom: 6px; font-family: var(--mono); }
+.card-text { font-size: 14.5px; line-height: 1.6; color: var(--text); font-family: var(--serif); }
+.card-hot { background: var(--hot-bg); border: 1px solid var(--hot-bd); }
+.card-hot .card-label { color: var(--hot-lc); }
+.card-deep { background: var(--deep-bg); border: 1px solid var(--deep-bd); }
+.card-deep .card-label { color: var(--deep-lc); }
+.card-esc { background: var(--esc-bg); border: 1px solid var(--esc-bd); }
+.card-esc .card-label { color: var(--esc-lc); }
+.card-tip { background: var(--tip-bg); border: 1px solid var(--tip-bd); }
+
+.btn-tab { padding: 8px 4px; border-radius: 8px; cursor: pointer; font-family: var(--mono); font-size: 10px; font-weight: 500; color: var(--muted); background: var(--tab-bg); border: 1px solid var(--border); flex: 1; white-space: nowrap; transition: all 0.15s; }
+.btn-tab.active { font-weight: 800; color: var(--text); background: var(--tab-active); border-width: 2px; }
+.btn-basics { padding: 8px 10px; flex: none; }
+
+.btn-action { width: 100%; padding: 12px; border-radius: 10px; border: 1px dashed var(--border); background: transparent; color: var(--muted); font-family: var(--mono); font-size: 13px; font-weight: 600; cursor: pointer; letter-spacing: 1px; margin-bottom: 12px; }
+.btn-panic { width: 100%; background: linear-gradient(135deg, #c0392b, #96281b); color: #fff; border: none; border-radius: 12px; padding: 14px 24px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: var(--mono); letter-spacing: 1.5px; text-transform: uppercase; box-shadow: 0 4px 20px rgba(192,57,43,.3); }
+.btn-enter { background: linear-gradient(135deg, #2ecc71, #1a9c54); color: #fff; border: none; border-radius: 12px; padding: 16px 48px; font-size: 16px; font-weight: 800; cursor: pointer; font-family: var(--mono); letter-spacing: 2px; text-transform: uppercase; box-shadow: 0 4px 24px rgba(46,204,113,.3); }
+
+.header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 14px 16px 12px; position: sticky; top: 0; z-index: 50; }
+.header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.header-title { font-family: var(--mono); font-size: 18px; font-weight: 900; color: var(--text); letter-spacing: 2.5px; cursor: pointer; }
+.tabs { display: flex; gap: 5px; flex-wrap: wrap; }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+.status { font-size: 10px; color: var(--dim); font-family: var(--mono); display: flex; align-items: center; gap: 5px; }
+
+.content { padding: 14px 16px 80px; min-height: 60vh; }
+.info-box { background: var(--surface); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; border: 1px solid var(--border); }
+.info-title { font-family: var(--mono); font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.info-sub { font-family: var(--serif); font-size: 12px; color: var(--muted); }
+
+.panic-overlay { background: linear-gradient(135deg, rgba(46,204,113,.12), rgba(39,174,96,.06)); border: 2px solid var(--esc-lc); border-radius: 12px; padding: 20px; margin-bottom: 14px; text-align: center; animation: panicFade 4s ease both; }
+.panic-label { font-size: 10px; font-weight: 800; color: var(--esc-lc); letter-spacing: 2px; font-family: var(--mono); margin-bottom: 8px; }
+.panic-text { font-size: 18px; font-weight: 600; color: var(--text); font-family: var(--serif); line-height: 1.5; }
+
+.moss { font-family: var(--mono); font-size: 12px; color: var(--moss); text-align: center; padding: 8px 16px; opacity: 0.6; font-style: italic; margin-top: 14px; }
+
+.intro { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.intro-inner { max-width: 440px; text-align: center; animation: fadeSlide 0.5s ease; }
+.intro-icon { font-size: 64px; margin-bottom: 12px; }
+.intro-title { font-family: var(--mono); font-size: 32px; font-weight: 900; letter-spacing: 4px; margin-bottom: 4px; }
+.intro-sub { font-family: var(--serif); font-size: 15px; color: var(--muted); font-style: italic; margin-bottom: 36px; }
+.intro-legend { background: var(--surface); border-radius: 12px; padding: 20px; margin-bottom: 28px; border: 1px solid var(--border); text-align: left; font-size: 13px; color: var(--muted); line-height: 2.1; font-family: var(--serif); }
+
+.hidden { display: none; }
+.glossary-link { display: inline-block; margin-top: 16px; color: var(--muted); font-family: var(--mono); font-size: 12px; text-decoration: none; border-bottom: 1px dashed var(--dim); }
+.glossary-link:hover { color: var(--text); }
+</style>
+</head>
+<body>
+
+<div id="intro" class="intro">
+  <div class="intro-inner">
+    <div class="intro-icon">🏟️</div>
+    <h1 class="intro-title">BLUFFBALL</h1>
+    <div class="intro-sub">Your secret weapon for sports conversations</div>
+    <div class="intro-legend">
+      <div><span style="color:var(--hot-lc);font-weight:700">🔥 Hot Takes</span> — sound confident</div>
+      <div><span style="color:var(--deep-lc);font-weight:700">🧊 Deep Cuts</span> — sound like an insider</div>
+      <div><span style="color:var(--esc-lc);font-weight:700">🚪 Exit Routes</span> — escape gracefully</div>
+      <div><span style="color:var(--hot-lc);font-weight:700">🚨 Panic Button</span> — when you're totally lost</div>
+    </div>
+    <button class="btn-enter" onclick="enterApp()">Enter the Bluff</button>
+    <div class="moss" id="moss-intro"></div>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <div class="header">
+    <div class="header-row">
+      <div class="header-title" onclick="showView('basics')">🏟️ BLUFFBALL</div>
+      <div id="status-area" class="status hidden">
+        <span id="status-dot" class="status-dot" style="animation:blink 2.5s infinite"></span>
+        <span id="status-text">CACHED</span>
+      </div>
+    </div>
+    <div class="tabs" id="tabs"></div>
+  </div>
+  <div class="content" id="content"></div>
+</div>
+
+<script>
+// ── DATA ──
+const TEAMS = {
+  phillies:{name:"Philadelphia Phillies",short:"Phillies",icon:"⚾",accent:"#E81828"},
+  redsox:{name:"Boston Red Sox",short:"Red Sox",icon:"⚾",accent:"#BD3039"},
+  eagles:{name:"Philadelphia Eagles",short:"Eagles",icon:"🏈",accent:"#004C54"},
+  wcbb:{name:"Women's College Basketball",short:"WBB",icon:"🏀",accent:"#f39c12"},
+};
+
+const FALLBACK = {
+  phillies:{
+    headline:"Phillies — Reigning NL East Champs", record:"2026 Season",
+    cards:[
+      {text:"Cristopher Sánchez got the Opening Day start and just signed a 6-year extension. The org is all-in.",type:"hot"},
+      {text:"Justin Crawford graduated to the majors — starting center field every day. The future is now.",type:"hot"},
+      {text:"Adolis García signed $10M for right field after they released Castellanos. First game? Against his old team Texas.",type:"hot"},
+      {text:"The bullpen had 75% turnover. Jhoan Duran throws gas. If the new arms gel, this team is scary.",type:"deep"},
+      {text:"Andrew Painter is the 5th starter at 22. When Wheeler comes back, this rotation is absurdly deep.",type:"deep"},
+      {text:"It comes down to pitching. If the rebuilt bullpen holds, 95-win team again.",type:"esc"},
+      {text:"NL East is brutal. Braves and Mets right there. First month will tell us a lot.",type:"esc"},
+    ],
+  },
+  redsox:{
+    headline:"Red Sox — Building on 2025 Playoff Run", record:"2026 Season",
+    cards:[
+      {text:"Garrett Crochet finished second in Cy Young voting his first year in Boston. Legitimate ace.",type:"hot"},
+      {text:"They signed Ranger Suárez from the Phillies. Rotation: Crochet, Suárez, Gray, Bello, Early. Deep.",type:"hot"},
+      {text:"Roman Anthony is 21 and already the franchise cornerstone. First full season could be special.",type:"hot"},
+      {text:"Aroldis Chapman posted a 1.17 ERA at age 38. 17 straight appearances without allowing a hit.",type:"deep"},
+      {text:"Connelly Early won the 5th starter job over veterans. No. 3 prospect — kid earned it.",type:"deep"},
+      {text:"AL East is a gauntlet. Yankees, Orioles, everyone improved. Long season.",type:"esc"},
+      {text:"Last year was a good step. Question is getting past the first round.",type:"esc"},
+    ],
+  },
+  eagles:{
+    headline:"Eagles — NFL Offseason Mode", record:"Waiting for September",
+    cards:[
+      {text:"All about the draft and free agency. Howie Roseman always makes moves nobody expects.",type:"hot"},
+      {text:"Jalen Hurts is the franchise. Question is always what they put around him.",type:"hot"},
+      {text:"NFC East is chaos every year. Could be anyone's division.",type:"hot"},
+      {text:"Mock draft season is the real offseason sport in Philly.",type:"deep"},
+      {text:"Training camp is when storylines emerge. Too early for predictions.",type:"deep"},
+      {text:"It's baseball season! Talk Eagles in September.",type:"esc"},
+      {text:"Cautiously optimistic but my head's in Phillies mode right now.",type:"esc"},
+    ],
+  },
+  wcbb:{
+    headline:"NCAA Women's Tournament — Sweet 16", record:"UConn 36-0 (No. 1 seed) · Villanova 25-8 (eliminated)",
+    cards:[
+      {text:"UConn is 36-0 and the No. 1 overall seed. Defending champs going for back-to-back and an undefeated season.",type:"hot"},
+      {text:"Azzi Fudd dropped 34 points against Syracuse in the second round — 8-of-13 from three. Senior playing out of her mind.",type:"hot"},
+      {text:"UConn faces North Carolina in the Sweet 16 on Friday at 5 PM on ESPN. Fort Worth regional.",type:"hot"},
+      {text:"Villanova had a great year at 25-8 but lost to Texas Tech 57-52 in the first round. Jasmine Bascoe had 21 but it wasn't enough.",type:"deep"},
+      {text:"Villanova was the ONLY team to hold a halftime lead against UConn all year — in the Big East tourney final. UConn still won 90-51.",type:"deep"},
+      {text:"Sarah Strong is a sophomore All-American for UConn. She's 19 and already a top-5 player in the country.",type:"deep"},
+      {text:"This tournament has been wild — 10-seed Virginia knocked off 2-seed Iowa in double OT. First team ever from the First Four to the Sweet 16.",type:"esc"},
+    ],
+  },
+};
+
+const ALL_TIPS = [
+  {text:'Nod slowly: "Yeah, it\'s been a weird season." Works for any sport, any time.',cat:"uni"},
+  {text:'"I think it comes down to depth." Sounds smart. Applies everywhere.',cat:"uni"},
+  {text:'"They need to stay healthy." Always true. Always safe.',cat:"uni"},
+  {text:'Someone names a player you don\'t know? "They\'ve been quietly having a solid year."',cat:"uni"},
+  {text:'"The front office has been making interesting moves." Vague but engaged.',cat:"uni"},
+  {text:'"It\'s a long season" works March through October. 8 months, 4 words.',cat:"uni"},
+  {text:'"I don\'t trust the bullpen" works for any MLB team. Right 60% of the time.',cat:"uni"},
+  {text:"Bring up pitching (baseball) or offensive line (football). Always valid.",cat:"strat"},
+  {text:'Asked for a prediction? "I think they\'ll surprise some people." Leave it there.',cat:"strat"},
+  {text:'"I saw the highlight" is safer than "I watched the game." Less follow-up.',cat:"strat"},
+  {text:"Never bring up a stat first. Let them say it, then agree enthusiastically.",cat:"strat"},
+  {text:'Win: "They needed that." Loss: "They\'ll bounce back." Universal.',cat:"strat"},
+  {text:'A well-timed "EXACTLY" buys more time than trying to add new info.',cat:"strat"},
+  {text:'For March Madness: "My bracket is already busted" works from day one.',cat:"strat"},
+  {text:"Lean back, shake head, exhale. You're processing a tough loss.",cat:"body"},
+  {text:"Cross arms, nod with lips pressed. You have Opinions About The Roster.",cat:"body"},
+  {text:'Look at phone, wince, say "Ugh." You just checked a score.',cat:"body"},
+  {text:"Rub temples when someone mentions the bullpen. Correct response.",cat:"body"},
+  {text:'"Honestly I\'ve been so busy I haven\'t kept up this week" — then redirect.',cat:"exit"},
+  {text:'"Let\'s not talk about it" with a pained look works after any loss.',cat:"exit"},
+  {text:'"I need another drink before we get into that" — buys time AND changes location.',cat:"exit"},
+];
+
+const TIP_META = {
+  uni:{label:"🎯 UNIVERSAL",color:"var(--esc-lc)"},
+  strat:{label:"🧠 STRATEGY",color:"var(--deep-lc)"},
+  body:{label:"🪑 BODY LANGUAGE",color:"var(--hot-lc)"},
+  exit:{label:"🚪 EMERGENCY EXIT",color:"var(--esc-lc)"},
+};
+
+const CARD_LABELS = {hot:"🔥 HOT TAKE",deep:"🧊 DEEP CUT",esc:"🚪 EXIT ROUTE"};
+
+const PANIC = [
+  "Yeah, I saw that too. Wild, right?",
+  "I was literally just reading about that.",
+  "Totally agree. Crazy week.",
+  "That's a great point actually.",
+  "My buddy was saying the same thing.",
+  "You just have to see how it plays out.",
+  "The analytics people are all over that.",
+  "Honestly the whole league is in flux.",
+  "We'll know more by mid-season.",
+  "That's the beauty of sports — you never know.",
+];
+
+const MOSS = [
+  "Did you see that ludicrous display last night?",
+  "The thing about Arsenal is, they always try to walk it in.",
+  "What was Wenger thinking, sending Walcott on that early?",
+];
+
+// ── STATE ──
+let currentView = "intro";
+let activeTeam = "phillies";
+let liveData = {};
+let loadingTeam = null;
+let fetchedToday = {};
+let mossIdx = 0;
+
+// ── MOSS ROTATION ──
+function updateMoss() {
+  mossIdx = (mossIdx + 1) % MOSS.length;
+  document.querySelectorAll(".moss").forEach(el => {
+    el.textContent = '"' + MOSS[mossIdx] + '" — Moss';
+  });
+}
+setInterval(updateMoss, 4500);
+
+// ── HELPERS ──
+function shuffle(arr) { return [...arr].sort(() => 0.5 - Math.random()); }
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function makeCard(text, type, delay) {
+  return '<div class="card card-' + type + '" style="animation-delay:' + delay + 's">' +
+    '<div class="card-label">' + CARD_LABELS[type] + '</div>' +
+    '<div class="card-text">' + escHtml(text) + '</div></div>';
+}
+
+function makeTipCard(text, cat, delay) {
+  const meta = TIP_META[cat];
+  return '<div class="card card-tip" style="animation-delay:' + delay + 's">' +
+    '<div class="card-label" style="color:' + meta.color + '">' + meta.label + '</div>' +
+    '<div class="card-text">' + escHtml(text) + '</div></div>';
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// ── TABS ──
+function renderTabs() {
+  const tabsEl = document.getElementById("tabs");
+  let html = '<button class="btn-tab btn-basics ' + (currentView === "basics" ? "active" : "") + '" style="' + (currentView === "basics" ? "border-color:var(--tip-accent)" : "") + '" onclick="showView(\'basics\')">🎓</button>';
+  for (const [key, info] of Object.entries(TEAMS)) {
+    const isActive = currentView === "team" && activeTeam === key;
+    html += '<button class="btn-tab ' + (isActive ? "active" : "") + '" style="' + (isActive ? "border-color:" + info.accent : "") + '" onclick="showTeam(\'' + key + '\')">' + info.icon + ' ' + info.short + '</button>';
+  }
+  tabsEl.innerHTML = html;
+}
+
+function updateStatus() {
+  const area = document.getElementById("status-area");
+  const dot = document.getElementById("status-dot");
+  const txt = document.getElementById("status-text");
+  if (currentView !== "team") { area.classList.add("hidden"); return; }
+  area.classList.remove("hidden");
+  const isLoading = loadingTeam === activeTeam;
+  const isLive = !!liveData[activeTeam];
+  dot.style.background = isLoading ? "var(--hot-lc)" : isLive ? "var(--esc-lc)" : "var(--dim)";
+  dot.style.animation = isLoading ? "blink 0.5s infinite" : "blink 2.5s infinite";
+  txt.textContent = isLoading ? "SCOUTING" : isLive ? "LIVE" : "CACHED";
+}
+
+// ── VIEWS ──
+function enterApp() {
+  document.getElementById("intro").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  showView("basics");
+  setTimeout(() => fetchLive("phillies"), 100);
+  setTimeout(() => fetchLive("redsox"), 300);
+  setTimeout(() => fetchLive("eagles"), 500);
+  setTimeout(() => fetchLive("wcbb"), 700);
+}
+
+function showView(view) {
+  currentView = view;
+  renderTabs();
+  updateStatus();
+  if (view === "basics") renderBasics();
+}
+
+function showTeam(key) {
+  activeTeam = key;
+  currentView = "team";
+  renderTabs();
+  updateStatus();
+  renderTeam();
+  if (!liveData[key]) fetchLive(key);
+}
+
+function renderBasics() {
+  const tips = shuffle(ALL_TIPS).slice(0, 8);
+  let html = '<div class="info-box"><div class="info-title">🎓 Sports Small Talk 101</div><div class="info-sub">Universal tips for any conversation. Tap a team tab for today\'s intel.</div></div>';
+  html += '<div id="panic-slot"></div>';
+  tips.forEach((tip, i) => { html += makeTipCard(tip.text, tip.cat, i * 0.05); });
+  html += '<button class="btn-action" onclick="showView(\'basics\')">🔄 SHUFFLE TIPS</button>';
+  html += '<button class="btn-panic" onclick="triggerPanic()">🚨 PANIC BUTTON</button>';
+  html += '<div class="moss">"' + MOSS[mossIdx] + '" — Moss</div>';
+  document.getElementById("content").innerHTML = html;
+}
+
+function renderTeam() {
+  const data = liveData[activeTeam] || FALLBACK[activeTeam];
+  const isLive = !!liveData[activeTeam];
+  let sub = data.record;
+  if (isLive && data.fetchedAt) sub += ' · ' + new Date(data.fetchedAt).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+  if (loadingTeam === activeTeam && !isLive) sub += ' · Scouting...';
+
+  let html = '<div class="info-box"><div class="info-title">' + escHtml(data.headline) + '</div><div class="info-sub">' + escHtml(sub) + '</div></div>';
+  html += '<div id="panic-slot"></div>';
+  if (data.cards) {
+    data.cards.forEach((card, i) => { html += makeCard(card.text, card.type, i * 0.05); });
+  }
+  html += '<button class="btn-action" onclick="refreshTeam()">🔄 FETCH FRESH BLUFFS</button>';
+  html += '<button class="btn-panic" onclick="triggerPanic()">🚨 PANIC BUTTON</button>';
+  html += '<div class="moss">"' + MOSS[mossIdx] + '" — Moss</div>';
+  document.getElementById("content").innerHTML = html;
+}
+
+function refreshTeam() {
+  const dk = activeTeam + "_" + new Date().toDateString();
+  delete fetchedToday[dk];
+  fetchLive(activeTeam, true);
+}
+
+function triggerPanic() {
+  const slot = document.getElementById("panic-slot");
+  if (!slot) return;
+  const phrase = pick(PANIC);
+  slot.innerHTML = '<div class="panic-overlay"><div class="panic-label">SAY THIS NOW ↓</div><div class="panic-text">"' + escHtml(phrase) + '"</div></div>';
+  setTimeout(() => { if (slot) slot.innerHTML = ""; }, 4000);
+}
+
+// ── API FETCH ──
+async function fetchLive(teamKey, force) {
+  const dk = teamKey + "_" + new Date().toDateString();
+  if (!force && fetchedToday[dk]) return;
+  fetchedToday[dk] = true;
+  loadingTeam = teamKey;
+  updateStatus();
+
+  try {
+    const info = TEAMS[teamKey];
+    const today = new Date().toLocaleDateString("en-US", {weekday:"long",month:"long",day:"numeric",year:"numeric"});
+    const prompt = teamKey === "wcbb"
+      ? "Fresh talking points about the NCAA Women's Basketball Tournament. Focus on: (1) UConn Huskies — defending champs, (2) Villanova Wildcats women's basketball, (3) general tournament news. Mix all three."
+      : "Fresh talking points: " + info.name + ". " + (teamKey === "phillies" ? "Philly local." : teamKey === "redsox" ? "Sox fan in Philly." : teamKey === "eagles" ? "Eagles country." : "");
+
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514", max_tokens: 1000,
+        system: 'Generate casual sports talking points. ONLY valid JSON, no markdown.\n\n{"headline":"Status","record":"Record","cards":[{"text":"Point","type":"hot"},{"text":"...","type":"hot"},{"text":"...","type":"hot"},{"text":"...","type":"deep"},{"text":"...","type":"deep"},{"text":"...","type":"deep"},{"text":"...","type":"esc"}]}\n\nTypes: hot=opinions(3), deep=insider(3), esc=deflections(1). Casual voice. Real details. 1-2 sentences. Today: ' + today + '.',
+        messages: [{role:"user", content: prompt}],
+        tools: [{type:"web_search_20250305", name:"web_search"}],
+      }),
+    });
+
+    const data = await resp.json();
+    const txt = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
+    const parsed = JSON.parse(txt.replace(/```json|```/g, "").trim());
+    parsed.fetchedAt = new Date().toISOString();
+    liveData[teamKey] = parsed;
+
+    if (currentView === "team" && activeTeam === teamKey) renderTeam();
+  } catch (err) {
+    console.error("Bluffball fetch:", err);
+    delete fetchedToday[dk];
+  } finally {
+    loadingTeam = null;
+    updateStatus();
+  }
+}
+
+// ── INIT MOSS ──
+document.getElementById("moss-intro").textContent = '"' + MOSS[0] + '" — Moss';
+</script>
+</body>
+</html>

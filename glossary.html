@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bluffball Glossary — Sports Terms in Plain English</title>
+<style>
+:root {
+  --mono:'Courier New',monospace; --serif:'Georgia',serif;
+  --bg:#1a1a2e; --bg2:#16213e; --card:#1e2a45;
+  --fg:#e8e8e8; --mu:#8b95a5; --dim:#5a6577;
+  --bo:rgba(255,255,255,0.08); --tb:rgba(255,255,255,0.04); --ta:rgba(255,255,255,0.12);
+  --hl:#f1c40f;
+}
+@media(prefers-color-scheme:light){:root{
+  --bg:#f0ece4;--bg2:#e8e2d8;--card:#faf8f4;
+  --fg:#2c2c2c;--mu:#6b6b6b;--dim:#999;
+  --bo:rgba(0,0,0,0.08);--tb:rgba(0,0,0,0.03);--ta:rgba(0,0,0,0.08);
+  --hl:#b47e14;
+}}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--serif);min-height:100vh}
+@keyframes fs{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.hdr{background:var(--bg2);border-bottom:1px solid var(--bo);padding:20px 20px 16px;position:sticky;top:0;z-index:10}
+.hdr h1{font-family:var(--mono);font-size:22px;font-weight:900;letter-spacing:3px;margin-bottom:4px}
+.hdr p{font-size:13px;color:var(--mu);font-style:italic}
+.search{width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--bo);background:var(--tb);color:var(--fg);font-family:var(--serif);font-size:14px;outline:none;margin:12px 0 10px;box-sizing:border-box}
+.filters{display:flex;gap:6px}
+.fbtn{flex:1;padding:8px 6px;border-radius:8px;cursor:pointer;font-family:var(--mono);font-size:11px;font-weight:500;color:var(--mu);background:var(--tb);border:1px solid var(--bo)}
+.fbtn.active{font-weight:800;color:var(--fg);background:var(--ta);border:2px solid var(--hl)}
+.terms{padding:14px 16px 40px}
+.term{background:var(--card);border:1px solid var(--bo);border-radius:10px;padding:14px 16px;margin-bottom:8px;animation:fs .25s ease both}
+.term-name{font-family:var(--mono);font-size:15px;font-weight:800;color:var(--hl);letter-spacing:.5px;margin-bottom:4px}
+.term-def{font-size:14px;line-height:1.6;padding-left:24px}
+.term-icon{font-size:14px;display:inline-block;margin-right:6px}
+.footer{text-align:center;padding:20px;color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:1px}
+.footer a{color:var(--mu);text-decoration:none;border-bottom:1px dashed var(--dim)}
+.empty{text-align:center;padding:40px;color:var(--dim);font-family:var(--mono)}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div style="display:flex;align-items:center;gap:10px">
+    <span style="font-size:28px">📖</span>
+    <div>
+      <h1>BLUFFBALL GLOSSARY</h1>
+      <p id="count"></p>
+    </div>
+  </div>
+  <input class="search" type="text" placeholder="Search terms or definitions..." oninput="render()">
+  <div class="filters" id="filters"></div>
+</div>
+
+<div class="terms" id="terms"></div>
+
+<script>
+const T = [
+  ["Ace","Team's best starting pitcher.","⚾"],
+  ["AL East","Red Sox, Yankees, Orioles, Blue Jays, Rays. Toughest division.","⚾"],
+  ["All-American","Honor for the best college players in the country at their position.","🏀"],
+  ["Big East","College conference — UConn and Villanova are both Big East schools.","🏀"],
+  ["Blown save","When a closer gives up the lead in a save situation.","⚾"],
+  ["Bracket","Tournament matchup structure. 68 teams in March Madness.","🏀"],
+  ["Bullpen","The relief pitchers who come in after the starter.","⚾"],
+  ["CBP","Citizens Bank Park — Phillies' home stadium in South Philly.","⚾"],
+  ["Cleanup","4th spot in batting order — best power hitter.","⚾"],
+  ["Closer","Reliever who finishes the game in the 9th.","⚾"],
+  ["Cy Young","Annual award for best pitcher in each league.","⚾"],
+  ["DFA","Designated for Assignment — removed from 40-man roster. Team has 7 days to trade, release, or send them to minors.","⚾"],
+  ["DH","Designated Hitter — bats but doesn't play the field.","⚾"],
+  ["Double-double","Double digits in two stat categories in one game.","🏀"],
+  ["Draft","Annual event where NFL teams select college players. Worst teams pick first.","🏈"],
+  ["ERA","Earned Run Average — runs allowed per 9 innings. Under 3.00 is elite.","⚾"],
+  ["Elite Eight","8 teams left in March Madness. Win here = Final Four.","🏀"],
+  ["Extension","New longer contract before current deal expires.","⚾"],
+  ["Farm system","Team's minor league teams for developing young players.","⚾"],
+  ["Final Four","Last 4 teams in March Madness. Semifinal weekend.","🏀"],
+  ["Free agency","When a contract expires and player can sign anywhere.","⚾"],
+  ["Gold Glove","Award for best defensive player at each position.","⚾"],
+  ["Lineup","Batting order — which 9 players hit and in what order.","⚾"],
+  ["March Madness","NCAA tournament. 68 teams, single elimination. Known for upsets.","🏀"],
+  ["Mock draft","Expert predictions of upcoming NFL draft picks.","🏈"],
+  ["NFC East","Eagles, Cowboys, Giants, Commanders.","🏈"],
+  ["NL East","Phillies, Braves, Mets, Marlins, Nationals.","⚾"],
+  ["NLDS","National League Division Series — first playoff round.","⚾"],
+  ["No-hitter","Zero hits allowed for an entire game. Extremely rare.","⚾"],
+  ["OPS","On-base Plus Slugging. Over .800 good, .900+ great.","⚾"],
+  ["Offseason","Between seasons — trades, free agency, draft.","🏈"],
+  ["Opening Day","First game of MLB season. Basically a holiday.","⚾"],
+  ["PEDs","Performance Enhancing Drugs. 80-game MLB ban.","⚾"],
+  ["Platoon","Two players sharing a position based on pitcher handedness.","⚾"],
+  ["Postseason","The playoffs after the regular season.","⚾"],
+  ["Prospect","Young minor leaguer expected to be a good major leaguer.","⚾"],
+  ["RBI","Run Batted In — batter's action scores a run.","⚾"],
+  ["Roster","Official team player list. MLB carries 26.","⚾"],
+  ["Rotation","5 starting pitchers rotating every 5 days.","⚾"],
+  ["Save","Stat for closers finishing a close win.","⚾"],
+  ["Seed","Team's bracket ranking. 1 = best, 16 = lowest.","🏀"],
+  ["Selection Sunday","Day the NCAA bracket is revealed on TV.","🏀"],
+  ["Setup man","Reliever who pitches 7th/8th before the closer.","⚾"],
+  ["Shutout","Zero runs allowed all game.","⚾"],
+  ["Starter","Pitcher who begins the game. Usually 5-7 innings.","⚾"],
+  ["Sweet 16","16 teams remaining after first two rounds of March Madness.","🏀"],
+  ["Three-pointer","Shot from beyond the arc, worth 3 points.","🏀"],
+  ["Trade deadline","Late July cutoff — no more trades after this.","⚾"],
+  ["Triple-A","Highest minor league level. One step below majors.","⚾"],
+  ["Turnover","Losing possession via steal, bad pass, or violation.","🏀"],
+  ["WAR","Wins Above Replacement. Player value vs. a backup. 5+ = All-Star.","⚾"],
+  ["Walk-off","Hit that wins the game in the bottom of the last inning.","⚾"],
+  ["Wild card","Playoff spot for best non-division winners.","⚾"],
+  ["World Series","MLB championship. Best-of-7.","⚾"],
+];
+
+const FILTERS = ["All","⚾ Baseball","🏈 Football","🏀 Basketball"];
+let activeFilter = "All";
+
+function init() {
+  const fEl = document.getElementById("filters");
+  fEl.innerHTML = FILTERS.map(f =>
+    '<button class="fbtn' + (f === activeFilter ? ' active' : '') + '" onclick="setFilter(\'' + f + '\')">' + f + '</button>'
+  ).join("");
+  render();
+}
+
+function setFilter(f) {
+  activeFilter = f;
+  document.querySelectorAll(".fbtn").forEach(b => {
+    b.classList.toggle("active", b.textContent === f);
+  });
+  render();
+}
+
+function render() {
+  const q = document.querySelector(".search").value.trim().toLowerCase();
+  const icon = activeFilter === "All" ? null : activeFilter.charAt(0);
+  const filtered = T.filter(([term, def, ic]) => {
+    if (icon && ic !== icon) return false;
+    if (q && !term.toLowerCase().includes(q) && !def.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  document.getElementById("count").textContent = filtered.length + " term" + (filtered.length !== 1 ? "s" : "") + " — plain English, no jargon-splaining";
+
+  if (!filtered.length) {
+    document.getElementById("terms").innerHTML = '<div class="empty">No matches. Try a different search.</div>';
+    return;
+  }
+
+  document.getElementById("terms").innerHTML = filtered.map(([term, def, ic], i) =>
+    '<div class="term" style="animation-delay:' + Math.min(i * 0.03, 0.3) + 's">' +
+    '<div class="term-name"><span class="term-icon">' + ic + '</span>' + term + '</div>' +
+    '<div class="term-def">' + def + '</div></div>'
+  ).join("") + '<div class="footer">BLUFFBALL GLOSSARY — Companion to <a href="index.html">🏟️ BLUFFBALL</a></div>';
+}
+
+init();
+</script>
+</body>
+</html>
