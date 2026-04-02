@@ -378,7 +378,7 @@ async function fetchLive(teamKey, force) {
       ? "Fresh talking points about the NCAA Women's Basketball Tournament. Focus on: (1) UConn Huskies — defending champs, (2) Villanova Wildcats women's basketball, (3) general tournament news. Mix all three."
       : "Fresh talking points: " + info.name + ". " + (teamKey === "phillies" ? "Philly local." : teamKey === "redsox" ? "Sox fan in Philly." : teamKey === "eagles" ? "Eagles country." : "");
 
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+    const resp = await fetch("https://bluffball-api.nicholasmwatson.workers.dev/", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
