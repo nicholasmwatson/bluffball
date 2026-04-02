@@ -265,8 +265,12 @@ function makeTipCard(text, cat, delay) {
     '<div class="card-text">' + escHtml(text) + '</div></div>';
 }
 
+function cleanText(str) {
+  return str.replace(/<\/?cite[^>]*>/gi, "").replace(/<\/?antml:cite[^>]*>/gi, "");
+}
+
 function escHtml(str) {
-  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  return cleanText(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
 // ── TABS ──
