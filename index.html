@@ -386,7 +386,7 @@ async function fetchLive(teamKey, force) {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514", max_tokens: 1000,
+        model: "claude-sonnet-4-6", max_tokens: 1000,
         system: 'Generate casual sports talking points. ONLY valid JSON, no markdown.\n\n{"headline":"Status","record":"Record","cards":[{"text":"Point","type":"hot"},{"text":"...","type":"hot"},{"text":"...","type":"hot"},{"text":"...","type":"deep"},{"text":"...","type":"deep"},{"text":"...","type":"deep"},{"text":"...","type":"esc"}]}\n\nTypes: hot=opinions(3), deep=insider(3), esc=deflections(1). Casual voice. Real details. 1-2 sentences. Today: ' + today + '.',
         messages: [{role:"user", content: prompt}],
         tools: [{type:"web_search_20250305", name:"web_search"}],
